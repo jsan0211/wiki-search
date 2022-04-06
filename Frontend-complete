@@ -1,0 +1,63 @@
+Function test_app {
+    [void][System.Reflection.Assembly]::LoadWithPartialName("System.Windows.Forms")
+    [void][System.Reflection.Assembly]::LoadWithPartialName("System.Drawing")
+
+    # Draw Form
+    $Test_Form = New-Object System.Windows.Forms.Form
+    $Test_Form.Text = "Test_App"
+    $Test_Form.ClientSize = New-Object System.Drawing.Size(600, 500)
+    $Test_Form.BackColor = "LightGray"
+    $Test_Form.StartPosition = "CenterScreen"
+    $StopScript = $Script:CANCELED=$True
+
+    #This creates a search box
+    $obj_search_box = New-Object System.Windows.Forms.TextBox 
+    $obj_search_box.Location = New-Object System.Drawing.Size(10,30) 
+    $obj_search_box.Size = New-Object System.Drawing.Size(160,20)
+    $obj_search_box.TabIndex = 0 
+    $Test_Form.Controls.Add($obj_search_box)
+
+    #This creates a output box
+    $obj_output_box = New-Object System.Windows.Forms.TextBox 
+    $obj_output_box.Location = New-Object System.Drawing.Size(10,60) 
+    $obj_output_box.Size = New-Object System.Drawing.Size(580,425)
+    $obj_output_box.Multiline = $True
+    $obj_output_box.TabIndex = 0 
+    $Test_Form.Controls.Add($obj_output_box)
+    
+    # Search Button
+    $Search_Button = New-Object System.Windows.Forms.Button
+    $Search_Button.Location = New-Object System.Drawing.Point(175,29)
+    $Search_Button.Size = New-Object System.Drawing.Size(98,23)
+    $Search_Button.BackColor = "LightGray"
+    $Search_Button.Text = "Search"
+    $Search_Button.Add_Click({
+    
+
+        $url = "https://en.wikipedia.org/wiki/"+$obj_search_box.Text
+
+         If ($obj_search_box.Text -ne 0) {
+                $w =Invoke-WebRequest -Uri $url
+                $w.AllElements | where tagname -EQ "P" | select innerText
+                    }
+
+        else{
+            $obj_output_box.Text = "Unable to Complete Search"
+            } 
+        
+        <#$w =Invoke-WebRequest -Uri "https://en.wikipedia.org/wiki/"
+        $w =Invoke-WebRequest -Uri "https://en.wikipedia.org/wiki/"
+
+        $w.AllElements | where tagname -EQ "P" | select innerText #>
+
+    })
+$Test_Form.Controls.Add($Search_Button)
+
+    # Render Form
+    $Test_Form.Add_Shown({$Test_Form.Activate()})
+    $Test_Form.ShowDialog() | Out-Null
+    $Test_Form.Dispose() | Out-Null
+
+
+}
+test_app
